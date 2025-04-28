@@ -6,6 +6,7 @@ import (
 )
 
 // HandleMessage processes incoming WebSocket messages and triggers the handler
+// HandleMessage processes incoming WebSocket messages and triggers the handler
 func HandleMessage(message []byte, handler func(msg DecryptedMessage)) {
 	var response Response
 	err := json.Unmarshal(message, &response)
@@ -28,7 +29,10 @@ func HandleMessage(message []byte, handler func(msg DecryptedMessage)) {
 			return
 		}
 
-		// Trigger the handler if set
+		if decrypted.CommentMsg.Name.Text == "" || decrypted.CommentMsg.Comment.Text == "" {
+			return
+		}
+
 		if handler != nil {
 			handler(decrypted)
 		}
