@@ -29,7 +29,7 @@ func HandleMessage(message []byte, handler func(msg DecryptedMessage)) {
 			return
 		}
 
-		if decrypted.CommentMsg.Name.Text == "" || decrypted.CommentMsg.Comment.Text == "" {
+		if decrypted.Type != 3 {
 			return
 		}
 
