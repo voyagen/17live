@@ -106,6 +106,23 @@ func (c *SeventeenLiveClient) Share17Live(roomID int) (*resty.Response, error) {
 		Post(fmt.Sprintf("https://wap-api.17app.co/api/v1/lives/%d/reacts", streamer.RoomID))
 }
 
+// Like sends a like reaction.
+func (c *SeventeenLiveClient) Like(roomID int) (*resty.Response, error) {
+	streamer, err := c.fetchStreamerProfile(roomID)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to fetch streamer profile")
+	}
+
+	payload := ReactionRequest{
+		UserID:       streamer.UserID,
+		LiveStreamID: streamer.RoomID,
+		Type:         2,
+	}
+
+	return c.client.R().SetBody(payload).
+		Post(fmt.Sprintf("https://wap-api.17app.co/api/v1/lives/%d/reacts", streamer.RoomID))
+}
+
 // Follow sends a follow request to the streamer
 func (c *SeventeenLiveClient) Follow(roomID int) (*resty.Response, error) {
 	streamer, err := c.fetchStreamerProfile(roomID)
