@@ -12,7 +12,7 @@ go get github.com/voyagen/17live
 
 ## Usage
 
-Below is an example of how to use the client to send a message:
+Below is an example of how to use the api client to send a message:
 
 ```go
 package main
@@ -21,12 +21,12 @@ import (
     "fmt"
     "time"
 
-    "github.com/voyagen/17live/client"
+    "github.com/voyagen/17live/api"
 )
 
 func main() {
     // Initialize the client with a username and password
-    client, err := client.NewClient(
+    apiclient, err := api.NewClient(
         "your-username",
         "your-password",
     )
@@ -36,7 +36,7 @@ func main() {
     }
 
     // Send poke request with roomid and message
-    err = client.SendMessage(12345678, "Hello World!")
+    err = apiclient.SendMessage(12345678, "Hello World!")
     if err != nil {
         fmt.Println("Error sending message:", err)
         return

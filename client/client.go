@@ -1,85 +1,61 @@
 package client
 
 import (
-	"bytes"
-	"crypto/md5"
-	"encoding/hex"
-	"encoding/json"
-	"net/http"
+	"fmt"
+	"log"
 
-	"github.com/go-resty/resty/v2"
-	"github.com/pkg/errors"
+	"github.com/gorilla/websocket"
 )
 
-// SeventeenLiveClient is a client for interacting with the 17Live API.
-type SeventeenLiveClient struct {
-	client      *resty.Client
-	UserProfile UserInfo
+// Client represents a WebSocket client with a message handler
+type Client struct {
+	conn      *websocket.Conn
+	onMessage func(msg DecryptedMessage)
 }
 
-// NewSeventeenLiveClient creates a new SeventeenLiveClient with the provided login details.
-func NewClient(username string, password string) (*SeventeenLiveClient, error) {
-	if username == "" {
-		return nil, errors.New("Username cannot be empty")
-	}
-
-	if password == "" {
-		return nil, errors.New("Password must be positive")
-	}
-
-	client := resty.New()
-	client.SetHeaders(map[string]string{
-		"Content-Type": "application/json",
-		"devicetype":   "WEB",
-		"language":     "GLOBAL",
-		"origin":       "https://17.live",
-		"user-agent":   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
-	})
-
-	c := &SeventeenLiveClient{
-		client:      client,
-		UserProfile: UserInfo{},
-	}
-
-	response, err := c.login(username, password)
+// NewClient creates a new WebSocket client
+func NewClient() (*Client, error) {
+	conn, _, err := websocket.DefaultDialer.Dial("wss://17media-realtime.ably.io/?key=qvDtFQ.0xBeRA:iYWpd3nD2QHE6Sjm&format=json&heartbeats=true&v=1.1&lib=js-web-1.1.25", nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to login")
+		return nil, fmt.Errorf("failed to connect to WebSocket: %v", err)
 	}
-	c.UserProfile = response.UserInfo
-	c.client.SetHeader("Authorization", "Bearer "+response.JwtAccessToken)
 
-	return c, nil
+	client := &Client{
+		conn: conn,
+	}
+	return client, nil
 }
 
-func (c *SeventeenLiveClient) login(username string, password string) (*LoginResponseData, error) {
-	// Generate MD5 hash
-	hash := md5.Sum([]byte(password))
-	password = hex.EncodeToString(hash[:])
+// SetOnMessage sets the callback function for handling incoming messages
+func (c *Client) SetOnMessage(handler func(msg DecryptedMessage)) {
+	c.onMessage = handler
+}
 
-	payload := map[string]string{
-		"openID":   username,
-		"password": password,
-		"language": "EN",
-	}
+// Start begins listening for messages and triggers the OnMessage handler
+func (c *Client) Start() {
+	go func() {
+		for {
+			_, message, err := c.conn.ReadMessage()
+			if err != nil {
+				log.Println("Error reading message:", err)
+				return
+			}
+			HandleMessage(message, c.onMessage)
+		}
+	}()
+}
 
-	resp, err := c.client.R().SetBody(payload).Post("https://wap-api.17app.co/api/v1/auth/loginAction")
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to send login request")
-	}
+// Subscribe sends a subscription message to a specific channel
+func (c *Client) Subscribe(channel string) error {
+	subscribeMessage := fmt.Sprintf(`{
+		"action": 10,
+		"channel": "%s"
+	}`, channel)
 
-	if resp.StatusCode() != http.StatusOK {
-		return nil, errors.Errorf("login failed: status code %d, body: %s", resp.StatusCode(), resp.String())
-	}
+	return c.conn.WriteMessage(websocket.TextMessage, []byte(subscribeMessage))
+}
 
-	loginResponse := LoginResponse{}
-	if err := json.NewDecoder(bytes.NewReader(resp.Body())).Decode(&loginResponse); err != nil {
-		return nil, errors.Wrap(err, "failed to decode login response")
-	}
-
-	var dataResponse LoginResponseData
-	if err := json.Unmarshal([]byte(loginResponse.Data), &dataResponse); err != nil {
-		return nil, errors.Wrap(err, "failed to decode login response data")
-	}
-
-	return &dataResponse, nil
+// Close terminates the WebSocket connection
+func (c *Client) Close() {
+	c.conn.Close()
 }
