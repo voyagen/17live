@@ -39,20 +39,20 @@ func NewClient(config ClientConfig) (*Client, error) {
 		"user-agent":   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
 	})
 
-	client := &Client{
+	c := &Client{
 		conn:     conn,
 		client:   restyclient,
 		channels: config.Channels,
 	}
 
-	response, err := client.login(config.Username, config.Password)
+	response, err := c.login(config.Username, config.Password)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to login")
 	}
-	client.UserProfile = response.UserInfo
-	client.client.SetHeader("Authorization", "Bearer "+response.JwtAccessToken)
+	c.UserProfile = response.UserInfo
+	c.client.SetHeader("Authorization", "Bearer "+response.JwtAccessToken)
 
-	return client, nil
+	return c, nil
 }
 
 func (c *Client) login(username string, password string) (*LoginResponseData, error) {
