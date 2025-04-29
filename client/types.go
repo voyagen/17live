@@ -1,22 +1,45 @@
 package client
 
-// Message represents the message data within the 'messages' array
-type Message struct {
-	Data string `json:"data"`
+import "github.com/gorilla/websocket"
+
+// Client represents a WebSocket client with a message handler
+type Client struct {
+	conn      *websocket.Conn
+	channels  []int
+	onMessage func(msg Message)
+}
+
+type ClientConfig struct {
+	// Identity struct {
+	// 	Username string
+	// 	Password string
+	// }
+	Channels []int
 }
 
 // Response represents the full WebSocket response
 type Response struct {
-	Action           int       `json:"action"`
-	ID               string    `json:"id"`
-	ConnectionSerial int       `json:"connectionSerial"`
-	Channel          string    `json:"channel"`
-	ChannelSerial    string    `json:"channelSerial"`
-	Messages         []Message `json:"messages"`
-	Timestamp        int64     `json:"timestamp"`
+	Action           int    `json:"action"`
+	ID               string `json:"id"`
+	ConnectionSerial int    `json:"connectionSerial"`
+	Channel          string `json:"channel"`
+	ChannelSerial    string `json:"channelSerial"`
+	Messages         []struct {
+		Data string `json:"data"`
+	} `json:"messages"`
+	Timestamp int64 `json:"timestamp"`
 }
 
-type DecryptedMessage struct {
+type Message struct {
+	Channel  string
+	UserID   string
+	Username string
+	Picture  string
+	Content  string
+	Tags     []string
+}
+
+type MessageRawData struct {
 	Type                int         `json:"type"`
 	Version             interface{} `json:"version"`
 	NewJoinRequest      interface{} `json:"newJoinRequest"`
