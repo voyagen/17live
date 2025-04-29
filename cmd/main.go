@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/voyagen/17live/client"
@@ -11,8 +12,10 @@ import (
 // EXAMPLE CODE
 func main() {
 	var clientConfig client.ClientConfig = client.ClientConfig{
+		Username: "username",
+		Password: "password",
 		Channels: []int{
-			8494770,
+			28743507,
 		},
 	}
 	client, err := client.NewClient(clientConfig)
@@ -28,6 +31,15 @@ func main() {
 	}
 }
 
-func messageHandler(message client.Message) {
+func messageHandler(c *client.Client, message client.Message) {
 	fmt.Printf("[%s] %s: %s\n", message.Channel, message.Username, message.Content)
+
+	channelID, err := strconv.Atoi(message.Channel)
+	if err != nil {
+		log.Printf("Invalid channel ID: %s\n", message.Channel)
+		return
+	}
+
+	text := fmt.Sprintf("@%v Hello!", message.Username)
+	c.SendMessage(channelID, text)
 }
