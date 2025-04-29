@@ -31,7 +31,7 @@ func main() {
 		Username: "username",
 		Password: "password",
 		Channels: []int{
-			28743507,
+			123456789,
 		},
 	}
 	client, err := client.NewClient(clientConfig)
