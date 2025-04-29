@@ -27,27 +27,35 @@ import (
 )
 
 func main() {
-	var clientConfig client.ClientConfig = client.ClientConfig{
+    //Create a configuration from the client
+	var cfg client.ClientConfig = client.ClientConfig{
 		Username: "username",
 		Password: "password",
 		Channels: []int{
 			123456789,
 		},
 	}
-	client, err := client.NewClient(clientConfig)
+
+    // Create a new client
+	client, err := client.NewClient(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
 
+    // Set on message handler
 	client.OnMessage(messageHandler)
+
+    // Connect to the channels
 	client.Connect()
 
+    // This is just to keep the application running
 	for {
 		time.Sleep(1 * time.Second)
 	}
 }
 
 func messageHandler(c *client.Client, message client.Message) {
+    // print incomming message
 	fmt.Printf("[%s] %s: %s\n", message.Channel, message.Username, message.Content)
 
 	channelID, err := strconv.Atoi(message.Channel)
@@ -56,6 +64,7 @@ func messageHandler(c *client.Client, message client.Message) {
 		return
 	}
 
+    // sending a message to back with hello
 	text := fmt.Sprintf("@%v Hello!", message.Username)
 	c.SendMessage(channelID, text)
 }
