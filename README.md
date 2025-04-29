@@ -26,7 +26,6 @@ import (
 	"github.com/voyagen/17live/client"
 )
 
-// EXAMPLE CODE
 func main() {
 	var clientConfig client.ClientConfig = client.ClientConfig{
 		Username: "username",
