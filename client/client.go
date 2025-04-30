@@ -76,7 +76,7 @@ func (c *Client) Connect() error {
 				}
 				return
 			}
-			HandleOnMessage(c, message, c.onMessage)
+			HandlePacket(c, message, c.onMessage)
 		}
 	}()
 	return nil

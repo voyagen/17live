@@ -128,12 +128,17 @@ type Response struct {
 }
 
 type Message struct {
-	Channel  string
-	UserID   string
-	Username string
-	Picture  string
-	Content  string
-	Tags     []string
+	Channel   string
+	UserID    string
+	Username  string
+	Picture   string
+	Content   string
+	Timestamp int64
+}
+
+type RedEnvelope struct {
+	StartTime int
+	EndTime   int
 }
 
 type MessageRawData struct {
@@ -297,24 +302,66 @@ type MessageRawData struct {
 			StyleID string `json:"styleID"`
 		} `json:"prefixBadges"`
 	} `json:"commentMsg"`
-	SubscriberEnterMsg       interface{} `json:"subscriberEnterMsg"`
-	ReactMsg                 interface{} `json:"reactMsg"`
-	DisplayUserMsg           interface{} `json:"displayUserMsg"`
-	GuardianInfo             interface{} `json:"guardianInfo"`
-	GiftMsg                  interface{} `json:"giftMsg"`
-	GlobalLuckyBagMsg        interface{} `json:"globalLuckyBagMsg"`
-	LiveStreamBroadcastMsg   interface{} `json:"liveStreamBroadcastMsg"`
-	GlobalInfoUpdateMsg      interface{} `json:"globalInfoUpdateMsg"`
-	GameMsg                  interface{} `json:"gameMsg"`
-	Liveinfo                 interface{} `json:"liveinfo"`
-	LiveinfoChange           interface{} `json:"liveinfoChange"`
-	PokeInfo                 interface{} `json:"pokeInfo"`
-	PollInfo                 interface{} `json:"pollInfo"`
-	MediaMessage             interface{} `json:"mediaMessage"`
-	GlobalAnnouncementMsg    interface{} `json:"globalAnnouncementMsg"`
-	LiveStreamPromotionMsg   interface{} `json:"liveStreamPromotionMsg"`
-	TriviaMsg                interface{} `json:"triviaMsg"`
-	RedEnvelopeEventInfo     interface{} `json:"redEnvelopeEventInfo"`
+	SubscriberEnterMsg     interface{} `json:"subscriberEnterMsg"`
+	ReactMsg               interface{} `json:"reactMsg"`
+	DisplayUserMsg         interface{} `json:"displayUserMsg"`
+	GuardianInfo           interface{} `json:"guardianInfo"`
+	GiftMsg                interface{} `json:"giftMsg"`
+	GlobalLuckyBagMsg      interface{} `json:"globalLuckyBagMsg"`
+	LiveStreamBroadcastMsg interface{} `json:"liveStreamBroadcastMsg"`
+	GlobalInfoUpdateMsg    interface{} `json:"globalInfoUpdateMsg"`
+	GameMsg                interface{} `json:"gameMsg"`
+	Liveinfo               interface{} `json:"liveinfo"`
+	LiveinfoChange         interface{} `json:"liveinfoChange"`
+	PokeInfo               interface{} `json:"pokeInfo"`
+	PollInfo               interface{} `json:"pollInfo"`
+	MediaMessage           interface{} `json:"mediaMessage"`
+	GlobalAnnouncementMsg  interface{} `json:"globalAnnouncementMsg"`
+	LiveStreamPromotionMsg interface{} `json:"liveStreamPromotionMsg"`
+	TriviaMsg              interface{} `json:"triviaMsg"`
+	RedEnvelopeEventInfo   struct {
+		DisplayInfo struct {
+			UserID        string      `json:"userID"`
+			DisplayName   string      `json:"displayName"`
+			Picture       string      `json:"picture"`
+			Name          string      `json:"name"`
+			Level         int         `json:"level"`
+			OpenID        string      `json:"openID"`
+			Region        string      `json:"region"`
+			GloryroadInfo interface{} `json:"gloryroadInfo"`
+			GloryroadMode int         `json:"gloryroadMode"`
+			OnliveInfo    interface{} `json:"onliveInfo"`
+			LevelBadges   interface{} `json:"levelBadges"`
+		} `json:"displayInfo"`
+		StartTime                    int           `json:"startTime"`
+		EndTime                      int           `json:"endTime"`
+		Count                        int           `json:"count"`
+		EventID                      int           `json:"eventID"`
+		Point                        int           `json:"point"`
+		AvaliableCount               int           `json:"avaliableCount"`
+		CurrentTime                  int           `json:"currentTime"`
+		Theme                        int           `json:"theme"`
+		NewCreator                   interface{}   `json:"newCreator"`
+		Token                        interface{}   `json:"token"`
+		NameToken                    interface{}   `json:"nameToken"`
+		RedEnvelopeID                string        `json:"redEnvelopeID"`
+		CustomizedName               string        `json:"customizedName"`
+		RecommendRoomID              string        `json:"recommendRoomID"`
+		RecommendStreamerDisplayInfo interface{}   `json:"recommendStreamerDisplayInfo"`
+		Type                         int           `json:"type"`
+		InfoType                     int           `json:"infoType"`
+		RedenvelopeDialogURL         string        `json:"redenvelopeDialogURL"`
+		ButtonDecorationURL          string        `json:"buttonDecorationURL"`
+		CountdownIconURL             string        `json:"countdownIconURL"`
+		EntryIconURL                 string        `json:"entryIconURL"`
+		CountBackgroundColor         string        `json:"countBackgroundColor"`
+		ButtonTextColor              string        `json:"buttonTextColor"`
+		AdditionalTextAndButtonColor string        `json:"additionalTextAndButtonColor"`
+		IsBox                        bool          `json:"isBox"`
+		NextEventType                int           `json:"nextEventType"`
+		GiftIDs                      []interface{} `json:"giftIDs"`
+		ToArchiveEventID             int           `json:"toArchiveEventID"`
+	} `json:"redEnvelopeEventInfo"`
 	RedEnvelopeEventEndMsg   interface{} `json:"redEnvelopeEventEndMsg"`
 	RedEnvelopeRegionInfo    interface{} `json:"redEnvelopeRegionInfo"`
 	VoteInfo                 interface{} `json:"voteInfo"`
