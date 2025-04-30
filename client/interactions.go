@@ -12,7 +12,7 @@ import (
 )
 
 // fetchStreamerProfile retrieves streamer information for the given room ID.
-func (c *Client) fetchStreamerProfile(roomID int) (StreamerProfile, error) {
+func (c *Client) getStreamerProfile(roomID int) (StreamerProfile, error) {
 	url := fmt.Sprintf("https://wap-api.17app.co/api/v1/user/room/%d", roomID)
 
 	resp, err := c.client.R().Get(url)
@@ -57,7 +57,7 @@ func (c *Client) Poke(userID string, roomID int) (*resty.Response, error) {
 
 // Poke sends a poke request to the specified user back.
 func (c *Client) PokeBack(roomID int) (*resty.Response, error) {
-	streamer, err := c.fetchStreamerProfile(roomID)
+	streamer, err := c.getStreamerProfile(roomID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to fetch streamer profile")
 	}
@@ -74,7 +74,7 @@ func (c *Client) PokeBack(roomID int) (*resty.Response, error) {
 
 // ShareFacebook sends a Facebook share reaction.
 func (c *Client) ShareFacebook(roomID int) (*resty.Response, error) {
-	streamer, err := c.fetchStreamerProfile(roomID)
+	streamer, err := c.getStreamerProfile(roomID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to fetch streamer profile")
 	}
@@ -91,7 +91,7 @@ func (c *Client) ShareFacebook(roomID int) (*resty.Response, error) {
 
 // Share17Live sends a 17Live share reaction.
 func (c *Client) Share17Live(roomID int) (*resty.Response, error) {
-	streamer, err := c.fetchStreamerProfile(roomID)
+	streamer, err := c.getStreamerProfile(roomID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to fetch streamer profile")
 	}
@@ -108,7 +108,7 @@ func (c *Client) Share17Live(roomID int) (*resty.Response, error) {
 
 // Like sends a like reaction.
 func (c *Client) Like(roomID int) (*resty.Response, error) {
-	streamer, err := c.fetchStreamerProfile(roomID)
+	streamer, err := c.getStreamerProfile(roomID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to fetch streamer profile")
 	}
@@ -125,7 +125,7 @@ func (c *Client) Like(roomID int) (*resty.Response, error) {
 
 // Follow sends a follow request to the streamer
 func (c *Client) Follow(roomID int) (*resty.Response, error) {
-	streamer, err := c.fetchStreamerProfile(roomID)
+	streamer, err := c.getStreamerProfile(roomID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to fetch streamer profile")
 	}
@@ -152,7 +152,7 @@ func (c *Client) Follow(roomID int) (*resty.Response, error) {
 
 // Unfollow sends a unfollow request to the streamer
 func (c *Client) Unfollow(roomID int) (*resty.Response, error) {
-	streamer, err := c.fetchStreamerProfile(roomID)
+	streamer, err := c.getStreamerProfile(roomID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to fetch streamer profile")
 	}

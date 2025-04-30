@@ -1,59 +1,5 @@
 package client
 
-import (
-	"encoding/json"
-
-	"github.com/go-resty/resty/v2"
-	"github.com/gorilla/websocket"
-)
-
-// Client represents a WebSocket client with a message handler
-type Client struct {
-	conn        *websocket.Conn
-	channels    []int
-	client      *resty.Client
-	UserProfile UserInfo
-	onMessage   func(*Client, Message)
-}
-
-type ClientConfig struct {
-	Username string
-	Password string
-	Channels []int
-}
-
-// LoginResponse represents the API response structure
-type LoginResponse struct {
-	Data json.RawMessage `json:"data"`
-}
-
-// LoginErrorResponse holds error response data
-type LoginErrorResponse struct {
-	Result  string `json:"result"`
-	Message string `json:"message"`
-}
-
-type LoginResponseData struct {
-	UserInfo             UserInfo `json:"userInfo"`
-	Message              string   `json:"message"`
-	Result               string   `json:"result"`
-	RefreshToken         string   `json:"refreshToken"`
-	JwtAccessToken       string   `json:"jwtAccessToken"`
-	AccessToken          string   `json:"accessToken"`
-	GiftModuleState      int      `json:"giftModuleState"`
-	Word                 string   `json:"word"`
-	AbtestNewbieFocus    string   `json:"abtestNewbieFocus"`
-	AbtestNewbieGuidance string   `json:"abtestNewbieGuidance"`
-	AbtestNewbieGuide    string   `json:"abtestNewbieGuide"`
-	ShowRecommend        bool     `json:"showRecommend"`
-	AutoEnterLive        struct {
-		Auto         bool `json:"auto"`
-		LiveStreamID int  `json:"liveStreamID"`
-	} `json:"autoEnterLive"`
-	NewbieEnhanceGuidanceStyle       int  `json:"newbieEnhanceGuidanceStyle"`
-	NewbieGuidanceFocusMissionEnable bool `json:"newbieGuidanceFocusMissionEnable"`
-}
-
 type UserInfo struct {
 	UserID                        string        `json:"userID"`
 	OpenID                        string        `json:"openID"`

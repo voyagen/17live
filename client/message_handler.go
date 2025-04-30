@@ -45,7 +45,6 @@ func HandleOnMessage(client *Client, data []byte, handler func(*Client, Message)
 		return fmt.Errorf("unmarshal message data: %w", err)
 	}
 
-	// TODO: Accept more payloads
 	if rawData.Type != 3 {
 		// fmt.Println(decompressedPayload)
 		return nil

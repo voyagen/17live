@@ -1,15 +1,9 @@
 package client
 
 import (
-	"bytes"
 	"context"
-	"crypto/md5"
-	"encoding/hex"
-	"encoding/json"
 	"fmt"
-	"io"
 	"log"
-	"net/http"
 	"strconv"
 	"time"
 
@@ -50,7 +44,7 @@ func NewClient(config ClientConfig) (*Client, error) {
 	// Add context with timeout for login
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	response, err := c.login(ctx, config.Username, config.Password)
+	response, err := c.authenticate(ctx, config.Username, config.Password)
 	if err != nil {
 		c.Disconnect() // Clean up WebSocket connection on failure
 		return nil, errors.Wrap(err, "failed to login")
@@ -60,73 +54,6 @@ func NewClient(config ClientConfig) (*Client, error) {
 	c.client.SetHeader("Authorization", "Bearer "+response.JwtAccessToken)
 
 	return c, nil
-}
-
-// Login authenticates a user with the provided credentials
-func (c *Client) login(ctx context.Context, username, password string) (*LoginResponseData, error) {
-	if username == "" || password == "" {
-		return nil, errors.New("username and password are required")
-	}
-
-	// Note: MD5 is weak; consider stronger hashing if API supports it
-	hash := md5.Sum([]byte(password))
-	hashedPassword := hex.EncodeToString(hash[:])
-
-	// Use struct for type safety and consistency with headers
-	payload := struct {
-		OpenID   string `json:"openID"`
-		Password string `json:"password"`
-		Language string `json:"language"`
-	}{
-		OpenID:   username,
-		Password: hashedPassword,
-		Language: "EN",
-	}
-
-	// Send request with context
-	resp, err := c.client.R().
-		SetContext(ctx).
-		SetBody(payload).
-		Post("https://wap-api.17app.co/api/v1/auth/loginAction")
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to send login request")
-	}
-
-	// Handle non-200 status codes
-	if resp.StatusCode() != http.StatusOK {
-		body, _ := io.ReadAll(resp.RawResponse.Body)
-		return nil, errors.Errorf("login failed: status code %d, body: %s", resp.StatusCode(), string(body))
-	}
-
-	// Decode response
-	var loginResponse LoginResponse
-	if err := json.NewDecoder(bytes.NewReader(resp.Body())).Decode(&loginResponse); err != nil {
-		return nil, errors.Wrap(err, "failed to decode login response")
-	}
-
-	// Check for error response
-	var errorResponse LoginErrorResponse
-	if err := json.Unmarshal(loginResponse.Data, &errorResponse); err == nil && errorResponse.Result == "fail" {
-		return nil, errors.New(errorResponse.Message)
-	}
-
-	// Decode successful response
-	var dataResponse LoginResponseData
-	if err := json.Unmarshal(loginResponse.Data, &dataResponse); err != nil {
-		return nil, errors.Wrap(err, "failed to decode login response data")
-	}
-
-	// Validate critical fields
-	if dataResponse.JwtAccessToken == "" || dataResponse.UserInfo.UserID == "" {
-		return nil, errors.New("invalid login response: missing token or user ID")
-	}
-
-	return &dataResponse, nil
-}
-
-// SetOnMessage sets the callback function for handling incoming messages
-func (c *Client) OnMessage(handler func(client *Client, message Message)) {
-	c.onMessage = handler
 }
 
 // Start begins listening for messages and triggers the OnMessage handler
@@ -160,6 +87,11 @@ func (c *Client) Disconnect() {
 	c.conn.Close()
 }
 
+// SetOnMessage sets the callback function for handling incoming messages
+func (c *Client) OnMessage(handler func(client *Client, message Message)) {
+	c.onMessage = handler
+}
+
 // Subscribe sends a subscription message to a specific channel
 func (c *Client) subscribe(channel int) error {
 	subscribeMessage := fmt.Sprintf(`{
@@ -168,4 +100,13 @@ func (c *Client) subscribe(channel int) error {
 	}`, strconv.Itoa(channel))
 
 	return c.conn.WriteMessage(websocket.TextMessage, []byte(subscribeMessage))
+}
+
+// Client represents a WebSocket client with a message handler
+type Client struct {
+	conn        *websocket.Conn
+	channels    []int
+	client      *resty.Client
+	UserProfile UserInfo
+	onMessage   func(*Client, Message)
 }
