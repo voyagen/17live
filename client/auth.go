@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/pkg/errors"
 )
@@ -22,7 +23,6 @@ func (c *Client) authenticate(ctx context.Context, username, password string) (*
 	hash := md5.Sum([]byte(password))
 	hashedPassword := hex.EncodeToString(hash[:])
 
-	// Use struct for type safety and consistency with headers
 	payload := struct {
 		OpenID   string `json:"openID"`
 		Password string `json:"password"`
@@ -33,7 +33,9 @@ func (c *Client) authenticate(ctx context.Context, username, password string) (*
 		Language: "EN",
 	}
 
-	// Send request with context
+	// Send request with context and timeout
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
 	resp, err := c.client.R().
 		SetContext(ctx).
 		SetBody(payload).
@@ -60,10 +62,20 @@ func (c *Client) authenticate(ctx context.Context, username, password string) (*
 		return nil, errors.New(errorResponse.Message)
 	}
 
+	// Check if Data is a JSON-encoded string
+	var dataString string
+	if err := json.Unmarshal(loginResponse.Data, &dataString); err == nil && dataString != "" {
+		var decodedData json.RawMessage
+		if err := json.Unmarshal([]byte(dataString), &decodedData); err != nil {
+			return nil, errors.Wrapf(err, "failed to decode JSON string in Data: %s", dataString)
+		}
+		loginResponse.Data = decodedData // Update Data with decoded JSON
+	}
+
 	// Decode successful response
 	var dataResponse LoginResponseData
 	if err := json.Unmarshal(loginResponse.Data, &dataResponse); err != nil {
-		return nil, errors.Wrap(err, "failed to decode login response data")
+		return nil, errors.Wrapf(err, "failed to decode login response data: %s", string(loginResponse.Data))
 	}
 
 	// Validate critical fields
@@ -72,36 +84,4 @@ func (c *Client) authenticate(ctx context.Context, username, password string) (*
 	}
 
 	return &dataResponse, nil
-}
-
-// LoginResponse represents the API response structure
-type LoginResponse struct {
-	Data json.RawMessage `json:"data"`
-}
-
-// LoginErrorResponse holds error response data
-type LoginErrorResponse struct {
-	Result  string `json:"result"`
-	Message string `json:"message"`
-}
-
-type LoginResponseData struct {
-	UserInfo             UserInfo `json:"userInfo"`
-	Message              string   `json:"message"`
-	Result               string   `json:"result"`
-	RefreshToken         string   `json:"refreshToken"`
-	JwtAccessToken       string   `json:"jwtAccessToken"`
-	AccessToken          string   `json:"accessToken"`
-	GiftModuleState      int      `json:"giftModuleState"`
-	Word                 string   `json:"word"`
-	AbtestNewbieFocus    string   `json:"abtestNewbieFocus"`
-	AbtestNewbieGuidance string   `json:"abtestNewbieGuidance"`
-	AbtestNewbieGuide    string   `json:"abtestNewbieGuide"`
-	ShowRecommend        bool     `json:"showRecommend"`
-	AutoEnterLive        struct {
-		Auto         bool `json:"auto"`
-		LiveStreamID int  `json:"liveStreamID"`
-	} `json:"autoEnterLive"`
-	NewbieEnhanceGuidanceStyle       int  `json:"newbieEnhanceGuidanceStyle"`
-	NewbieGuidanceFocusMissionEnable bool `json:"newbieGuidanceFocusMissionEnable"`
 }

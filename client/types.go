@@ -1,5 +1,7 @@
 package client
 
+import "encoding/json"
+
 type UserInfo struct {
 	UserID                        string        `json:"userID"`
 	OpenID                        string        `json:"openID"`
@@ -87,6 +89,38 @@ type StreamerProfile struct {
 			Key string `json:"key"`
 		} `json:"description"`
 	} `json:"badgeInfo"`
+}
+
+// LoginResponse represents the API response structure
+type LoginResponse struct {
+	Data json.RawMessage `json:"data"`
+}
+
+// LoginErrorResponse holds error response data
+type LoginErrorResponse struct {
+	Result  string `json:"result"`
+	Message string `json:"message"`
+}
+
+type LoginResponseData struct {
+	UserInfo             UserInfo `json:"userInfo"`
+	Message              string   `json:"message"`
+	Result               string   `json:"result"`
+	RefreshToken         string   `json:"refreshToken"`
+	JwtAccessToken       string   `json:"jwtAccessToken"`
+	AccessToken          string   `json:"accessToken"`
+	GiftModuleState      int      `json:"giftModuleState"`
+	Word                 string   `json:"word"`
+	AbtestNewbieFocus    string   `json:"abtestNewbieFocus"`
+	AbtestNewbieGuidance string   `json:"abtestNewbieGuidance"`
+	AbtestNewbieGuide    string   `json:"abtestNewbieGuide"`
+	ShowRecommend        bool     `json:"showRecommend"`
+	AutoEnterLive        struct {
+		Auto         bool `json:"auto"`
+		LiveStreamID int  `json:"liveStreamID"`
+	} `json:"autoEnterLive"`
+	NewbieEnhanceGuidanceStyle       int  `json:"newbieEnhanceGuidanceStyle"`
+	NewbieGuidanceFocusMissionEnable bool `json:"newbieGuidanceFocusMissionEnable"`
 }
 
 // PokeRequest represents a poke API request payload.
