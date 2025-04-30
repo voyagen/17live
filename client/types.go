@@ -1,6 +1,8 @@
 package client
 
 import (
+	"encoding/json"
+
 	"github.com/go-resty/resty/v2"
 	"github.com/gorilla/websocket"
 )
@@ -20,9 +22,15 @@ type ClientConfig struct {
 	Channels []int
 }
 
+// LoginResponse represents the API response structure
 type LoginResponse struct {
-	Key  string `json:"key"`
-	Data string `json:"data"`
+	Data json.RawMessage `json:"data"`
+}
+
+// LoginErrorResponse holds error response data
+type LoginErrorResponse struct {
+	Result  string `json:"result"`
+	Message string `json:"message"`
 }
 
 type LoginResponseData struct {
