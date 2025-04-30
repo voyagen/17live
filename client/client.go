@@ -80,6 +80,18 @@ func (c *Client) login(username string, password string) (*LoginResponseData, er
 		return nil, errors.Wrap(err, "failed to decode login response")
 	}
 
+	var failResponse struct {
+		Result  string
+		Message string
+	}
+	if err := json.Unmarshal([]byte(loginResponse.Data), &failResponse); err != nil {
+		return nil, errors.Wrap(err, "failed to decode login response data")
+	}
+
+	if failResponse.Result == "fail" {
+		return nil, errors.New(failResponse.Message)
+	}
+
 	var dataResponse LoginResponseData
 	if err := json.Unmarshal([]byte(loginResponse.Data), &dataResponse); err != nil {
 		return nil, errors.Wrap(err, "failed to decode login response data")
