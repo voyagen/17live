@@ -43,6 +43,17 @@ func (c *Client) SendMessage(roomID int, comment string) (*resty.Response, error
 		Post("https://wap-api.17app.co/api/v1/lives/" + strconv.Itoa(roomID) + "/comments")
 }
 
+// PokeAll sends a poke request to all the users in the livestream.
+func (c *Client) PokeAll(roomID int) (*resty.Response, error) {
+	payload := PokeAllRequest{
+		ReceiverGroup: 2,
+		LiveStreamID:  strconv.Itoa(roomID),
+	}
+
+	return c.client.R().SetBody(payload).
+		Post("https://wap-api.17app.co/api/v1/pokes/pokeAll")
+}
+
 // Poke sends a poke request to the specified user.
 func (c *Client) Poke(userID string, roomID int) (*resty.Response, error) {
 	payload := PokeRequest{

@@ -17,6 +17,7 @@ func NewClient(config ClientConfig) (*Client, error) {
 	if config.Username == "" {
 		return nil, errors.New("config username cannot be empty")
 	}
+
 	if config.Password == "" {
 		return nil, errors.New("config password cannot be empty")
 	}

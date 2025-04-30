@@ -90,6 +90,12 @@ type StreamerProfile struct {
 }
 
 // PokeRequest represents a poke API request payload.
+type PokeAllRequest struct {
+	ReceiverGroup int    `json:"receiverGroup"`
+	LiveStreamID  string `json:"liveStreamID"`
+}
+
+// PokeRequest represents a poke API request payload.
 type PokeRequest struct {
 	UserID     string `json:"userID"`
 	IsPokeBack bool   `json:"isPokeBack"`
