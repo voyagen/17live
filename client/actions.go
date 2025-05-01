@@ -2,7 +2,7 @@ package client
 
 import (
 	"github.com/go-resty/resty/v2"
-	"github.com/voyagen/17live/internal/event"
+	"github.com/voyagen/17live/event"
 )
 
 // SetOnMessage sets the callback function for handling incoming chatmessages

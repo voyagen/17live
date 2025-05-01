@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/voyagen/17live/client"
-	"github.com/voyagen/17live/internal/event"
+	"github.com/voyagen/17live/event"
 )
 
 func main() {
