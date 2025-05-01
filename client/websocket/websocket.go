@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/voyagen/17live/event"
+	"github.com/voyagen/17live/client/event"
 
 	"github.com/gorilla/websocket"
 )

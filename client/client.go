@@ -6,10 +6,10 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"github.com/voyagen/17live/api"
-	"github.com/voyagen/17live/auth"
-	"github.com/voyagen/17live/event"
-	"github.com/voyagen/17live/websocket"
+	"github.com/voyagen/17live/client/api"
+	"github.com/voyagen/17live/client/auth"
+	"github.com/voyagen/17live/client/event"
+	"github.com/voyagen/17live/client/websocket"
 )
 
 // Client represents a WebSocket client with a message handler
