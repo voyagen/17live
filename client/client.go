@@ -14,13 +14,11 @@ import (
 
 // Client represents a WebSocket client with a message handler
 type Client struct {
-	// Core
 	conn *websocket.Websocket
 	api  *api.Client
 
 	User auth.UserInfo
 
-	// Handlers
 	onMessage         func(*Client, *event.ChatMessage)
 	onRedEnvelopeInfo func(*Client, *event.RedEnvelopeInfo)
 }
@@ -31,7 +29,7 @@ type Config struct {
 	Channels []int
 }
 
-// NewClient creates a new WebSocket client
+// NewClient creates a new 17Live client
 func NewClient(config Config) (*Client, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
