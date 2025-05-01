@@ -1,10 +1,10 @@
 # 17Live Go Client
 
-A Go client for interacting with the 17Live API, providing functionality to receive messages, send messages, receive red envelope info, send pokes, share reactions, and follow and unfollow streamers.
+A Go client for interacting with the 17Live platform, enabling developers to build applications that can receive and send messages, handle red envelope information, send pokes, share reactions, and follow or unfollow streamers.
 
 ## Installation
 
-To install the 17Live Go client, use:
+To install the 17Live Go client, run the following command:
 
 ```bash
 go get github.com/voyagen/17live
@@ -12,7 +12,7 @@ go get github.com/voyagen/17live
 
 ## Usage
 
-Below is an example of how to use the client to send a message:
+Below is an example demonstrating how to use the client to connect to a 17Live stream, listen for events, and interact with the platform:
 
 ```go
 package main
@@ -62,14 +62,28 @@ func main() {
 
 ```
 
-## Features
+## WebSocket Event Handlers
 
-- Receive messages
-- Receive Red Envelope Information
-- Send messages
-- Send poke requests
-- Share reactions (Facebook, 17Live)
-- Follow and Unfollow streamers
+The client provides methods to register callbacks for handling real-time WebSocket events:
+
+- `OnMessage`: Registers a callback for handling incoming chat message events.
+- `OnRedEnvelopeInfo`: Registers a callback for handling red envelope event data.
+- `OnPoke`: Registers a callback for handling poke event notifications.
+- `OnUserJoined`: Registers a callback for handling user join event notifications.
+
+## API Methods
+
+The client provides the following methods for interacting with 17Live:
+
+- `SendMessage(roomID int, comment string)`: Send a message to a specific room.
+- `PokeAll(roomID int)`: Send a poke to all users in a stream.
+- `Poke(userID string, roomID int)`: Send a poke to a specific user in a stream.
+- `PokeBack(roomID int)`: Send a poke back to a user who poked you.
+- `ShareFacebook(roomID int)`: Share a Facebook reaction for a stream.
+- `Share17Live(roomID int)`: Share a 17Live-specific reaction for a stream.
+- `Like(roomID int)`: Send a like reaction to a stream.
+- `Follow(roomID int)`: Follow a streamer.
+- `Unfollow(roomID int)`: Unfollow a streamer.
 
 ## Contributing
 
@@ -78,3 +92,7 @@ Contributions are welcome! Please open an issue or submit a pull request on GitH
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+## Support
+
+For questions, bug reports, or feature requests, please open an issue on the GitHub repository.
