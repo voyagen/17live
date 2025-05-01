@@ -5,14 +5,24 @@ import (
 	"github.com/voyagen/17live/internal/event"
 )
 
-// SetOnMessage sets the callback function for handling incoming messages
+// SetOnMessage sets the callback function for handling incoming chatmessages
 func (c *Client) OnMessage(handler func(client *Client, message *event.ChatMessage)) {
 	c.onMessage = handler
 }
 
-// SetOnMessage sets the callback function for handling incoming messages
-func (c *Client) OnRedEnvelopeInfo(handler func(client *Client, message *event.RedEnvelopeInfo)) {
+// OnRedEnvelopeInfo sets the callback function for handling Red Envelope Info
+func (c *Client) OnRedEnvelopeInfo(handler func(client *Client, envelope *event.RedEnvelopeInfo)) {
 	c.onRedEnvelopeInfo = handler
+}
+
+// onPoke sets the callback function for handling poke messages
+func (c *Client) OnPoke(handler func(client *Client, poke *event.Poke)) {
+	c.onPoke = handler
+}
+
+// OnUserJoined  sets the callback function for handling OnUserJoined
+func (c *Client) OnUserJoined(handler func(client *Client, poke *event.UserJoined)) {
+	c.onUserJoined = handler
 }
 
 // SendMessage sends a message

@@ -21,6 +21,8 @@ type Response struct {
 // parserRegistry holds registered parsers by packet type
 var parserRegistry = map[int]Parser{
 	3:  &ChatMessageParser{},
+	18: &UserJoinedParser{},
+	47: &PokeParser{},
 	51: &RedEnvelopeParser{},
 }
 
@@ -35,7 +37,7 @@ func NewPacket(responseData []byte) (Packet, error) {
 		return nil, fmt.Errorf("unmarshal response: %w", err)
 	}
 
-	if response.Action != 15 || len(response.Messages) == 0 {
+	if len(response.Messages) == 0 {
 		return nil, fmt.Errorf("invalid response: action=%d, messages=%d", response.Action, len(response.Messages))
 	}
 
@@ -113,5 +115,56 @@ func (p *RedEnvelopeParser) Parse(response Response, rawData json.RawMessage) (P
 		Count:     data.RedEnvelopeEventInfo.Count,
 		StartTime: data.RedEnvelopeEventInfo.StartTime,
 		EndTime:   data.RedEnvelopeEventInfo.EndTime,
+	}, nil
+}
+
+// PokeParser parsed poke packets
+type PokeParser struct{}
+
+func (p *PokeParser) Parse(response Response, rawData json.RawMessage) (Packet, error) {
+	var data struct {
+		Type     int `json:"type"`
+		PokeInfo struct {
+			Sender          User `json:"sender"`
+			Receiver        User `json:"receiver"`
+			IsPokeBack      bool `json:"isPokeBack"`
+			CoolDownEndTime int  `json:"coolDownEndTime"`
+		} `json:"pokeInfo"`
+	}
+	if err := json.Unmarshal(rawData, &data); err != nil {
+		return nil, fmt.Errorf("unmarshal poke: %w", err)
+	}
+
+	return &Poke{
+		RoomID:          response.Channel,
+		Sender:          data.PokeInfo.Sender,
+		Receiver:        data.PokeInfo.Receiver,
+		IsPokeBack:      data.PokeInfo.IsPokeBack,
+		CoolDownEndTime: data.PokeInfo.CoolDownEndTime,
+	}, nil
+}
+
+type UserJoinedParser struct{}
+
+func (u *UserJoinedParser) Parse(response Response, rawData json.RawMessage) (Packet, error) {
+	var data struct {
+		CommentMsg struct {
+			DisplayUser struct {
+				UserID      string `json:"userID"`
+				DisplayName string `json:"displayName"`
+				Picture     string `json:"picture"`
+			} `json:"displayUser"`
+		} `json:"commentMsg"`
+	}
+
+	if err := json.Unmarshal(rawData, &data); err != nil {
+		return nil, fmt.Errorf("unmarshal poke: %w", err)
+	}
+
+	return &UserJoined{
+		RoomID:   response.Channel,
+		UserID:   data.CommentMsg.DisplayUser.UserID,
+		Username: data.CommentMsg.DisplayUser.DisplayName,
+		Picture:  data.CommentMsg.DisplayUser.Picture,
 	}, nil
 }

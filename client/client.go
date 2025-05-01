@@ -21,6 +21,8 @@ type Client struct {
 
 	onMessage         func(*Client, *event.ChatMessage)
 	onRedEnvelopeInfo func(*Client, *event.RedEnvelopeInfo)
+	onPoke            func(*Client, *event.Poke)
+	onUserJoined      func(*Client, *event.UserJoined)
 }
 
 type Config struct {
@@ -77,6 +79,14 @@ func (c *Client) Connect() error {
 		case *event.RedEnvelopeInfo:
 			if c.onRedEnvelopeInfo != nil {
 				c.onRedEnvelopeInfo(c, pkt)
+			}
+		case *event.Poke:
+			if c.onPoke != nil {
+				c.onPoke(c, pkt)
+			}
+		case *event.UserJoined:
+			if c.onUserJoined != nil {
+				c.onUserJoined(c, pkt)
 			}
 		default:
 			log.Printf("Unknown packet type: %+v", pkt)

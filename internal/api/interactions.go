@@ -13,7 +13,7 @@ import (
 
 // Constants for URLs
 const (
-	BaseURL          = "https://wap-17app.co/api/v1"
+	BaseURL          = "https://wap-api.17app.co/api/v1"
 	CommentsEndpoint = "/lives/%d/comments"
 	PokeAllEndpoint  = "/pokes/pokeAll"
 	PokeEndpoint     = "/pokes"
