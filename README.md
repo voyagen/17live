@@ -1,6 +1,6 @@
 # 17Live Go Client
 
-A Go client for interacting with the 17Live API, providing functionality to receive messages, send messages, send pokes, share reactions, and follow and unfollow streamers.
+A Go client for interacting with the 17Live API, providing functionality to receive messages, send messages, receive red envelope info, send pokes, share reactions, and follow and unfollow streamers.
 
 ## Installation
 
@@ -19,54 +19,35 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"strconv"
 	"time"
 
 	"github.com/voyagen/17live/client"
+	"github.com/voyagen/17live/internal/event"
 )
 
 func main() {
-    //Create a configuration from the client
-	var cfg client.ClientConfig = client.ClientConfig{
-		Username: "username",
-		Password: "password",
-		Channels: []int{
-			123456789,
-		},
+	cfg := client.Config{
+		Username: "yourusername",
+		Password: "yourpassword",
+		Channels: []int{1234567890},
 	}
 
-    // Create a new client
-	client, err := client.NewClient(cfg)
+	c, err := client.NewClient(cfg)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println("Error:", err)
 	}
 
-    // Set on message handler
-	client.OnMessage(messageHandler)
+	c.OnMessage(func(client *client.Client, chatmessage *event.ChatMessage) {
+		fmt.Println("Message:", chatmessage.RoomID, chatmessage.Username, chatmessage.Text)
+	})
 
-    // Connect to the channels
-	client.Connect()
+	c.OnRedEnvelopeInfo(func(client *client.Client, envelope *event.RedEnvelopeInfo) {
+		openTime := time.Unix(int64(envelope.StartTime), 0).Format("2006-01-02 15:04:05")
+		endTime := time.Unix(int64(envelope.StartTime), 0).Format("2006-01-02 15:04:05")
+		fmt.Println("Red Envelope:", envelope.RoomID,  openTime, endTime, envelope.Count)
+	})
 
-    // This is just to keep the application running
-	for {
-		time.Sleep(1 * time.Second)
-	}
-}
-
-func messageHandler(c *client.Client, message client.Message) {
-    // print incomming message
-	fmt.Printf("[%s] %s: %s\n", message.Channel, message.Username, message.Content)
-
-	channelID, err := strconv.Atoi(message.Channel)
-	if err != nil {
-		log.Printf("Invalid channel ID: %s\n", message.Channel)
-		return
-	}
-
-    // sending a message to back with hello
-	text := fmt.Sprintf("@%v Hello!", message.Username)
-	c.SendMessage(channelID, text)
+	c.Connect()
 }
 
 ```
@@ -74,6 +55,7 @@ func messageHandler(c *client.Client, message client.Message) {
 ## Features
 
 - Receive messages
+- Receive Red Envelope Information
 - Send messages
 - Send poke requests
 - Share reactions (Facebook, 17Live)
