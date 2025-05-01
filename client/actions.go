@@ -2,7 +2,18 @@ package client
 
 import (
 	"github.com/go-resty/resty/v2"
+	"github.com/voyagen/17live/internal/event"
 )
+
+// SetOnMessage sets the callback function for handling incoming messages
+func (c *Client) OnMessage(handler func(client *Client, message *event.ChatMessage)) {
+	c.onMessage = handler
+}
+
+// SetOnMessage sets the callback function for handling incoming messages
+func (c *Client) OnRedEnvelopeInfo(handler func(client *Client, message *event.RedEnvelopeInfo)) {
+	c.onRedEnvelopeInfo = handler
+}
 
 // SendMessage sends a message
 func (c *Client) SendMessage(roomID int, comment string) (*resty.Response, error) {

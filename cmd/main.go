@@ -12,7 +12,7 @@ func main() {
 	cfg := client.Config{
 		Username: "yourusername",
 		Password: "yourpassword",
-		Channels: []int{28946641},
+		Channels: []int{1234567890},
 	}
 
 	c, err := client.NewClient(cfg)

@@ -33,7 +33,6 @@ type Config struct {
 
 // NewClient creates a new WebSocket client
 func NewClient(config Config) (*Client, error) {
-	// TODO AUTHENTICATION
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -91,14 +90,4 @@ func (c *Client) Connect() error {
 	}
 
 	return nil
-}
-
-// SetOnMessage sets the callback function for handling incoming messages
-func (c *Client) OnMessage(handler func(client *Client, message *event.ChatMessage)) {
-	c.onMessage = handler
-}
-
-// SetOnMessage sets the callback function for handling incoming messages
-func (c *Client) OnRedEnvelopeInfo(handler func(client *Client, message *event.RedEnvelopeInfo)) {
-	c.onRedEnvelopeInfo = handler
 }

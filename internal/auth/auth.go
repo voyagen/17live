@@ -151,16 +151,13 @@ func (a *Auth) Login(ctx context.Context, username, password string) (LoginRespo
 	}
 
 	// Decode successful login data
-	// Decode successful login data
 	var loginData LoginResponseData
 
-	// Step 1: Unmarshal rawResp.Data into a string (it's a JSON-encoded string)
 	var innerJSON string
 	if err := json.Unmarshal(rawResp.Data, &innerJSON); err != nil {
 		return LoginResponseData{}, errors.Wrap(err, "expected JSON string in 'data' field")
 	}
 
-	// Step 2: Unmarshal the inner string into the LoginResponseData struct
 	if err := json.Unmarshal([]byte(innerJSON), &loginData); err != nil {
 		return LoginResponseData{}, errors.Wrap(err, "failed to decode nested login response data")
 	}
