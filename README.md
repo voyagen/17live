@@ -29,7 +29,7 @@ func main() {
 	cfg := client.Config{
 		Username: "yourusername",
 		Password: "yourpassword",
-		Channels: []int{1234567890}, // Livestream
+		Channels: []int{1234567890}, // Livestream ID can be found in the url -> https://17.live/en/live/1234567890
 	}
 
 	c, err := client.NewClient(cfg)
