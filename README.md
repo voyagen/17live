@@ -22,7 +22,7 @@ import (
 	"time"
 
 	"github.com/voyagen/17live/client"
-	"github.com/voyagen/17live/internal/event"
+	"github.com/voyagen/17live/client/event"
 )
 
 func main() {
@@ -38,27 +38,35 @@ func main() {
 	}
 
 	c.OnMessage(func(client *client.Client, chatmessage *event.ChatMessage) {
-		fmt.Println("Message:", chatmessage.Username, chatmessage.Text)
+		fmt.Println(fmt.Sprintf("[%s] Message - %s: %s", chatmessage.RoomID, chatmessage.Username, chatmessage.Text))
 	})
 
 	c.OnPoke(func(client *client.Client, poke *event.Poke) {
+		// Make sure that you are the person that was poked.
 		if poke.Receiver.UserID == client.User.UserID {
-			fmt.Println(fmt.Sprintf("You are poked by %s", poke.Sender.DisplayName))
+			fmt.Println(fmt.Sprintf("[%s] Poke: %s", poke.RoomID, poke.Sender.DisplayName))
 		}
 	})
 
 	c.OnRedEnvelopeInfo(func(client *client.Client, envelope *event.RedEnvelopeInfo) {
 		openTime := time.Unix(int64(envelope.StartTime), 0).Format("2006-01-02 15:04:05")
-		fmt.Println(openTime)
+		fmt.Println(fmt.Sprintf("[%s] Red envelope - %s", envelope.RoomID, openTime))
+
 	})
 
 	c.OnUserJoined(func(client *client.Client, userJoined *event.UserJoined) {
-		fmt.Println("User Joined:", userJoined.RoomID, userJoined.Username)
+		fmt.Println(fmt.Sprintf("[%s] User Joined - %s", userJoined.RoomID, userJoined.Username))
 	})
 
-	c.Connect()
-}
+	ctx := context.Background()
+	err = c.Connect(ctx)
+	if err != nil {
+		log.Fatalf("Failed to connect: %v", err)
+	}
 
+	// keeps the app running
+	select {}
+}
 
 ```
 
@@ -75,6 +83,7 @@ The client provides methods to register callbacks for handling real-time WebSock
 
 The client provides the following methods for interacting with 17Live:
 
+- `Enter(roomID int)`: Send a enter notification to a specific room.
 - `SendMessage(roomID int, comment string)`: Send a message to a specific room.
 - `PokeAll(roomID int)`: Send a poke to all users in a stream.
 - `Poke(userID string, roomID int)`: Send a poke to a specific user in a stream.

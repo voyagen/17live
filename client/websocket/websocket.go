@@ -1,12 +1,12 @@
 package websocket
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
-	"github.com/voyagen/17live/client/event"
-
 	"github.com/gorilla/websocket"
+	"github.com/voyagen/17live/client/event"
 )
 
 const (
@@ -18,7 +18,7 @@ type Websocket struct {
 	conn *websocket.Conn
 }
 
-// NewWebsocket creates a new WebSocket connection with JWT authentication
+// NewWebsocket creates a new WebSocket connection
 func NewWebsocket() (*Websocket, error) {
 	conn, _, err := websocket.DefaultDialer.Dial(WebsocketURL, http.Header{})
 	if err != nil {
@@ -35,23 +35,41 @@ func (w *Websocket) Join(channelID int) error {
 	return w.conn.WriteMessage(websocket.TextMessage, []byte(payload))
 }
 
-// ReadPackets reads and processes WebSocket packets
-func (w *Websocket) ReadPackets(handler func(event.Packet)) error {
+// ReadPackets reads WebSocket messages and sends them to a channel
+func (w *Websocket) ReadPackets(ctx context.Context, messages chan<- []byte) error {
+	defer w.conn.Close()
 	for {
-		_, data, err := w.conn.ReadMessage()
-		if err != nil {
-			return fmt.Errorf("failed to read websocket message: %v", err)
+		select {
+		case <-ctx.Done():
+			return nil
+		default:
+			_, data, err := w.conn.ReadMessage()
+			if err != nil {
+				return fmt.Errorf("failed to read websocket message: %v", err)
+			}
+			messages <- data
 		}
-		packet, err := event.NewPacket(data)
-		if err != nil {
-			// Failed to parse packet
-			continue
-		}
-		handler(packet)
 	}
 }
 
 // Close closes the WebSocket connection
 func (w *Websocket) Close() error {
 	return w.conn.Close()
+}
+
+// PacketProcessor processes raw messages into packets
+func PacketProcessor(ctx context.Context, messages <-chan []byte, packets chan<- event.Packet) {
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case data := <-messages:
+			packet, err := event.NewPacket(data)
+			if err != nil {
+				// Log error and continue
+				continue
+			}
+			packets <- packet
+		}
+	}
 }

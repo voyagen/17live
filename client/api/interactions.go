@@ -14,6 +14,7 @@ import (
 // Constants for URLs
 const (
 	BaseURL          = "https://wap-api.17app.co/api/v1"
+	EnterEndpoint    = "lives/%d/enter?"
 	CommentsEndpoint = "/lives/%d/comments"
 	PokeAllEndpoint  = "/pokes/pokeAll"
 	PokeEndpoint     = "/pokes"
@@ -31,6 +32,12 @@ const (
 	ReactionTypeLike          = 2
 	ReactionTypeFollow        = 3
 )
+
+// Enter a room
+func (c *Client) Enter(roomID int) (*resty.Response, error) {
+	return c.Client.R().
+		Post(fmt.Sprintf(BaseURL+EnterEndpoint, roomID))
+}
 
 // SendMessage sends a message
 func (c *Client) SendMessage(roomID int, comment string) (*resty.Response, error) {

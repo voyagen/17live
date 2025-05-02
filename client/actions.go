@@ -30,6 +30,11 @@ func (c *Client) SendMessage(roomID int, comment string) (*resty.Response, error
 	return c.api.SendMessage(roomID, comment)
 }
 
+// Enter sends a enter notification in the livestream.
+func (c *Client) Enter(roomID int) (*resty.Response, error) {
+	return c.api.Enter(roomID)
+}
+
 // PokeAll sends a poke request to all the users in the livestream.
 func (c *Client) PokeAll(roomID int) (*resty.Response, error) {
 	return c.api.PokeAll(roomID)
